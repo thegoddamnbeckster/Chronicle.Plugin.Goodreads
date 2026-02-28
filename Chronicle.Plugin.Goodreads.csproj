@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Chronicle.Plugin.Goodreads</AssemblyName>
+    <RootNamespace>Chronicle.Plugin.Goodreads</RootNamespace>
+    <Version>1.0.0</Version>
+    <Description>Chronicle import plugin for Goodreads — RSS feeds and CSV export</Description>
+  </PropertyGroup>
+
+  <!-- Reference Chronicle.Plugins from the main repo (not bundled at runtime) -->
+  <ItemGroup>
+    <Reference Include="Chronicle.Plugins">
+      <HintPath>..\Chronicle\src\Chronicle.Plugins\bin\Debug\net9.0\Chronicle.Plugins.dll</HintPath>
+      <Private>false</Private>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- RSS parsing via System.Xml (built-in); CSV parsing via CsvHelper -->
+    <PackageReference Include="CsvHelper" Version="33.*" />
+  </ItemGroup>
+
+</Project>
