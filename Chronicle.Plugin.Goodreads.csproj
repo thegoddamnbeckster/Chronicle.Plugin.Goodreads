@@ -22,6 +22,15 @@
   <ItemGroup>
     <!-- RSS parsing via System.Xml (built-in); CSV parsing via CsvHelper -->
     <PackageReference Include="CsvHelper" Version="33.*" />
+    <!--
+      Serilog is loaded by the Chronicle host, not bundled here (ExcludeAssets=runtime).
+      Pinned to the EXACT version Chronicle.API itself references, matching the convention
+      Chronicle.Plugin.Simkl's csproj documents: a floating range can resolve to a newer patch
+      than what the host has loaded, and a version mismatch throws FileNotFoundException at
+      runtime the moment the plugin touches logging. Bump this only when Chronicle.API's own
+      Serilog version changes.
+    -->
+    <PackageReference Include="Serilog" Version="4.3.0" PrivateAssets="all" ExcludeAssets="runtime" />
   </ItemGroup>
 
 </Project>

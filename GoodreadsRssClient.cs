@@ -1,5 +1,7 @@
+using System.Net;
 using System.Xml;
 using System.Xml.Linq;
+using Serilog;
 
 namespace Chronicle.Plugin.Goodreads;
 
@@ -17,6 +19,8 @@ namespace Chronicle.Plugin.Goodreads;
 /// </summary>
 public sealed class GoodreadsRssClient : IDisposable
 {
+    private static readonly ILogger _log = Log.ForContext<GoodreadsRssClient>();
+
     private readonly HttpClient _http;
 
     private const string BaseUrl   = "https://www.goodreads.com/review/list_rss";
@@ -52,7 +56,7 @@ public sealed class GoodreadsRssClient : IDisposable
             HttpResponseMessage response;
             try
             {
-                response = await _http.GetAsync(url, ct);
+                response = await GetWithRateLimitAsync(url, ct);
                 response.EnsureSuccessStatusCode();
             }
             catch (HttpRequestException ex)
@@ -76,6 +80,34 @@ public sealed class GoodreadsRssClient : IDisposable
         }
 
         return allItems;
+    }
+
+    // ── Rate-limit handling ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// Goodreads' RSS feed has no published rate limit of any kind (no real API here at all —
+    /// Goodreads deprecated its public API in 2020). This previously had zero 429 handling;
+    /// a rate-limited response threw immediately. Same shape as Chronicle.Plugin.Letterboxd's
+    /// GetWithRateLimitAsync, the closest sibling (also an unofficial RSS-feed consumer with
+    /// no documented limits) — a single retry honoring Retry-After, not a SIMKL-style
+    /// multi-hour cutoff, since there's no evidence of any daily-quota concept to justify one.
+    /// </summary>
+    private async Task<HttpResponseMessage> GetWithRateLimitAsync(string url, CancellationToken ct)
+    {
+        var response = await _http.GetAsync(url, ct);
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            var retryAfterSec = 30;
+            if (response.Headers.RetryAfter?.Delta.HasValue == true)
+                retryAfterSec = (int)response.Headers.RetryAfter.Delta!.Value.TotalSeconds + 1;
+
+            _log.Warning("Goodreads: rate-limited (429); waiting {Seconds}s before one retry", retryAfterSec);
+            await Task.Delay(retryAfterSec * 1000, ct);
+            response = await _http.GetAsync(url, ct);
+        }
+
+        return response;
     }
 
     // ── RSS parsing ───────────────────────────────────────────────────────────
