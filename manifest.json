@@ -1,7 +1,7 @@
 {
   "pluginId": "goodreads",
   "name": "Goodreads",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Michael Beck",
   "description": "Import reading history, ratings and shelves from Goodreads via RSS feeds or CSV export.",
   "homepage": "https://www.goodreads.com",
