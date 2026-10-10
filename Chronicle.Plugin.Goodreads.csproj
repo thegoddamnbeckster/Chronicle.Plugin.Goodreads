@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Chronicle.Plugin.Goodreads</AssemblyName>
     <RootNamespace>Chronicle.Plugin.Goodreads</RootNamespace>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Description>Chronicle import plugin for Goodreads — RSS feeds and CSV export</Description>
   </PropertyGroup>
 
